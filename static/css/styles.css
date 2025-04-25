@@ -1,0 +1,51 @@
+body {
+    background-color: #f0f0f0; /* light gray background */
+}
+.navbar-wolf {
+    background-color: #87ceeb; /* sky blue */
+}
+.wolf-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #333;
+}
+.nav-link {
+    color: #333 !important;
+}
+
+/* Join/Leave Button Styling */
+a.btn-primary, button.btn-primary {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+a.btn-primary:hover, button.btn-primary:hover {
+    background-color: #45a049;
+}
+
+/* Alignment for Buttons */
+.center-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.wolf-img {
+    object-fit: cover;
+    width: 100%;
+    height: 250px;
+    border-radius: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.wolf-img:hover {
+    transform: scale(1.15);
+    z-index: 1;
+}

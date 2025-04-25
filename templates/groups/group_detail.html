@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="text-center mt-5">{{ group.name }}</h2>
+<p class="text-center text-muted">{{ group.description }}</p>
+<p class="text-center">🐾 Members: {{ group.members.count }}</p>
+
+{% if request.user in group.members.all %}
+    <div class="text-center mb-4">
+        <a href="{% url 'leave_group' group.id %}" class="btn btn-danger">Leave Pack</a>
+    </div>
+
+    <h3 class="text-center">Group Howls</h3>
+    <div class="border rounded p-3 bg-white" style="max-height: 300px; overflow-y: auto;">
+        {% for msg in messages %}
+            <p><strong>{{ msg.user.username }}</strong>: {{ msg.content }} 
+                <em class="text-muted" style="font-size: small;">({{ msg.timestamp|date:"M d, H:i" }})</em>
+            </p>
+        {% empty %}
+            <p class="text-muted">No messages yet. Be the first to howl!</p>
+        {% endfor %}
+    </div>
+
+    <!-- Chatting -->
+    <form method="POST" class="mt-3">
+        {% csrf_token %}
+        <textarea name="message" rows="2" class="form-control mb-2" placeholder="Type a message..." required></textarea>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+
+{% else %}
+    <div class="text-center mt-4">
+        <a href="{% url 'join_group' group.id %}" class="btn btn-success">Join this Pack</a>
+    </div>
+{% endif %}
+
+<script>
+    const chatBox = document.querySelector("div[style*='overflow-y:auto']");
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+</script>
+{% endblock %}

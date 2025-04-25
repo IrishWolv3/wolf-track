@@ -1,37 +1,36 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import UserProfile, Workout, MealLog
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from .models import Workout, MealLog, Group
 
 # User Registration Form
-class UserProfileForm(forms.ModelForm):
-    username = forms.CharField(max_length=150) #
-    password = forms.CharField(widget=forms.PasswordInput)
-    confirm_password = forms.CharField(widget=forms.PasswordInput)
+# Custom user creation form (for registration)
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True, help_text="Required. Enter a valid email address.")  # Adding email field
+    first_name = forms.CharField(max_length=30, required=True, help_text="Required. Enter your first name.") # Adding first name field
+    last_name = forms.CharField(max_length=30, required=True, help_text="Required. Enter your last name.") # Adding last name field
 
     class Meta:
-        model = UserProfile
-        fields = ['age', 'height', 'weight', 'fitness_goal']
+        model = User # Using Django's built-in User model
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2'] # Fields included in the form
 
-    def clean(self): 
-        cleaned_data = super().clean()
-        password = cleaned_data.get("password")
-        confirm_password = cleaned_data.get("confirm_password")
+    # Custom clean method to check if email already exists
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists(): # If it exists, raise a validation error
+            raise forms.ValidationError("A user with this email already exists.")
+        return email
 
-        if password != confirm_password:
-            raise forms.ValidationError("Passwords do not match!")
+# Custom authentication form (for login)
+class CustomAuthenticationForm(AuthenticationForm):
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'})) # Adding class to username field
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'})) # Adding class to password fieldS
 
-        return cleaned_data
-
-    def save(self, commit=True):
-        user = User.objects.create_user(
-            username=self.cleaned_data['username'],
-            password=self.cleaned_data['password']
-        )
-        profile = super().save(commit=False)
-        profile.user = user
-        if commit:
-            profile.save()
-        return user
+# User profile form (for profile management)
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
 
 # Workout Log Form
 class WorkoutForm(forms.ModelForm):
@@ -53,3 +52,9 @@ class MealLogForm(forms.ModelForm):
             'meal_type': forms.TextInput(attrs={'placeholder': 'E.g., Breakfast, Lunch'}),
             'calories': forms.NumberInput(attrs={'placeholder': 'Calories'}),
         }
+
+# Group form (for group management)
+class GroupForm(forms.ModelForm):
+    class Meta:
+        model = Group
+        fields = ['name', 'description']

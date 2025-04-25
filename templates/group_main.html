@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="text-center mt-5">🐺 Welcome to the Wolf Pack</h2>
+<p class="text-center mb-4">Explore different groups, join survival challenges, and howl together through your fitness journey.</p>
+
+<div class="text-center">
+    <a href="{% url 'group_list' %}" class="btn btn-primary">View All Packs</a>
+</div>
+{% endblock %}

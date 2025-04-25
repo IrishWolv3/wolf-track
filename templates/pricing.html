@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-center">Choose Your Pack</h2>
+<div class="row text-center mt-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light"><strong>Free Pack</strong></div>
+            <div class="card-body">
+                <p>Access basic features</p>
+                <h4>$0/month</h4>
+                <button class="btn btn-outline-success" disabled>You're on this pack</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white"><strong>Wolf Spirit</strong></div>
+            <div class="card-body">
+                <p>More challenges and stats</p>
+                <h4>$4.99/month</h4>
+                <button class="btn btn-primary" onclick="alert('Request submitted!')">Request</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white"><strong>Alpha Pack</strong></div>
+            <div class="card-body">
+                <p>All features unlocked</p>
+                <h4>$9.99/month</h4>
+                <button class="btn btn-dark" onclick="alert('Request submitted!')">Request</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

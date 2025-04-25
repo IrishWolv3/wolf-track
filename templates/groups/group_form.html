@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="text-center mt-5">Create a New Wolf Pack</h2>
+
+<div class="mx-auto" style="max-width: 600px;">
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Create Pack</button>
+    </form>
+</div>
+{% endblock %}

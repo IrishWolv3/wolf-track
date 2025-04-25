@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Welcome, {{ user.username }}</h1>
+
+<h2>Your Workouts</h2>
+<ul>
+    {% for workout in workouts %}
+        <li>{{ workout.date }} - {{ workout.workout_type }} ({{ workout.duration }} min, {{ workout.calories_burned }} cal)</li>
+    {% empty %}
+        <li>No workouts logged yet.</li>
+    {% endfor %}
+</ul>
+
+<h2>Your Meal Logs</h2>
+<ul>
+    {% for meal in meals %}
+        <li>{{ meal.date }} - {{ meal.meal_type }} ({{ meal.calories }} cal)</li>
+    {% empty %}
+        <li>No meals logged yet.</li>
+    {% endfor %}
+</ul>
+
+<div>
+    <a href="{% url 'log_workout' %}">Log a Workout</a> |
+    <a href="{% url 'log_meal' %}">Log a Meal</a> |
+    <a href="{% url 'logout' %}">Logout</a>
+</div>
+
+{% endblock %}

@@ -3,7 +3,6 @@
 {% block content %}
 <div class="text-center mb-5">
     <h2 class="text-wolf">Wolf Conservation Efforts</h2>
-    <p class="mt-3">At WolvenfestFitness, our mission goes beyond fitness. We support real-world conservation of wolves and their habitats.</p>
 </div>
 
 <div class="row">
@@ -19,7 +18,21 @@
         <div class="card shadow-sm mb-4">
             <div class="card-body">
                 <h4>🌲 Our Pledge</h4>
-                <p>A percentage of premium pack proceeds go toward verified wolf conservation organizations.</p>
+                <p>Our mission goes beyond fitness which is why a percentage of our earnings go toward verified wolf conservation organizations.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Latest News Card -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h4>📰 Latest News Story</h4>
+                <p>Learn about the latest research on wolves with this fascinating news story: 
+                    <a href="https://www.cbsnews.com/news/dire-wolf-extinct-dna-puppies-colossal-biosciences/" target="_blank" class="btn btn-outline-primary">The Return of the Dire Wolf</a>
+                </p>
             </div>
         </div>
     </div>
@@ -37,13 +50,13 @@
                         class="img-fluid rounded shadow wolf-img"
                         alt="Wolf {{ i }}{{ j }}">
                 </div>
+            {% endfor %}
         {% endfor %}
-    {% endfor %}
     </div>
 </div>
 
 <div class="text-center mt-4">
     <h5>Join the Pack. Protect the Wild.</h5>
-    <button class="btn btn-success mt-2" onclick="alert('Thank you for caring! Donations opening soon.')">Donate</button>
+    <a href="https://www.americanwolf.org/donate" class="btn btn-outline-primary" target="_blank">Donate</a>
 </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Workout, MealLog, Group
+from .models import Workout, MealLog, Group, Profile
 
 # User Registration Form
 # Custom user creation form (for registration)
@@ -32,25 +32,44 @@ class UserProfileForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email']
 
+# Profile form (for personalized fitness info)
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['weight', 'height_feet', 'height_inches', 'age', 'desired_weight']
+        widgets = {
+            'weight': forms.NumberInput(attrs={'placeholder': 'Your current weight (kg)'}),
+            'height_feet': forms.NumberInput(attrs={'placeholder': 'Feet (e.g., 5)'}),
+            'height_inches': forms.NumberInput(attrs={'placeholder': 'Inches (e.g., 10)'}),
+            'age': forms.NumberInput(attrs={'placeholder': 'Your age'}),
+            'desired_weight': forms.NumberInput(attrs={'placeholder': 'Target weight (kg)'})
+        }
+
+
+
 # Workout Log Form
-class WorkoutForm(forms.ModelForm):
+class WorkoutLogForm(forms.ModelForm):
     class Meta:
         model = Workout
-        fields = ['workout_type', 'duration', 'calories_burned']
+        fields = ['workout_type', 'duration', 'sets', 'reps', 'calories_burned']
         widgets = {
-            'workout_type': forms.TextInput(attrs={'placeholder': 'E.g., Running, Weight Training'}),
-            'duration': forms.NumberInput(attrs={'placeholder': 'Minutes'}),
-            'calories_burned': forms.NumberInput(attrs={'placeholder': 'Calories Burned'}),
+            'workout_type': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Push Ups'}),
+            'duration': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Minutes'}),
+            'sets': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 3'}),
+            'reps': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 12'}),
+            'calories_burned': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 250'}),
         }
 
 # Meal Log Form
 class MealLogForm(forms.ModelForm):
     class Meta:
         model = MealLog
-        fields = ['meal_type', 'calories']
+        fields = ['meal_name', 'meal_type', 'quantity', 'calories']
         widgets = {
-            'meal_type': forms.TextInput(attrs={'placeholder': 'E.g., Breakfast, Lunch'}),
-            'calories': forms.NumberInput(attrs={'placeholder': 'Calories'}),
+            'meal_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Chicken Salad'}),
+            'meal_type': forms.Select(attrs={'class': 'form-control'}),
+            'quantity': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 200g'}),
+            'calories': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 350'}),
         }
 
 # Group form (for group management)

@@ -1,18 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Workout, MealLog, Group, Message
-from .forms import UserProfileForm, WorkoutForm, MealLogForm, CustomUserCreationForm, CustomAuthenticationForm, UserProfileForm,  GroupForm
+from django.utils import timezone
+from .models import Group, Message, Profile, Workout, MealLog, Badge, UserBadge
+from .forms import UserProfileForm, WorkoutLogForm, MealLogForm, CustomUserCreationForm, CustomAuthenticationForm, UserProfileForm,  GroupForm, ProfileForm
+from .utils import check_and_award_badges
 
 ################################## Front end applications #############################
 def index(request):
     return render(request, "index.html") # Render the index.html template
 
-@login_required # Ensure the user is logged in to access the dashboard
+@login_required
 def dashboard(request):
-    if not request.user.is_authenticated:
-        return redirect("login")  # Redirect if not logged in
-    return render(request, "dashboard.html") # Render the dashboard.html template
+    # Fetch the logged meals and workouts for the current user
+    meals = MealLog.objects.filter(user=request.user)
+    workouts = Workout.objects.filter(user=request.user)
+    
+    return render(request, "dashboard.html", {'meals': meals, 'workouts': workouts})
 
 #################################### User Authentication #############################
 # User Registration View
@@ -49,14 +53,17 @@ def logout_view(request):
 @login_required
 def log_workout(request):
     if request.method == "POST":
-        form = WorkoutForm(request.POST)
+        form = WorkoutLogForm(request.POST)
         if form.is_valid():
             workout = form.save(commit=False)
             workout.user = request.user
             workout.save()
             return redirect('dashboard')
     else:
-        form = WorkoutForm()
+        form = WorkoutLogForm()
+
+    check_and_award_badges(request.user)
+
     return render(request, 'log_workout.html', {'form': form})
 
 # Log Meals
@@ -72,6 +79,78 @@ def log_meal(request):
     else:
         form = MealLogForm()
     return render(request, 'log_meal.html', {'form': form})
+
+@login_required
+def delete_workout(request, workout_id):
+    workout = Workout.objects.get(id=workout_id, user=request.user)
+    workout.delete()
+    return redirect('dashboard')
+
+# Delete Meal
+@login_required
+def delete_meal(request, meal_id):
+    meal = MealLog.objects.get(id=meal_id, user=request.user)
+    meal.delete()
+    return redirect('dashboard')
+
+#################################### Routine Management #############################
+@login_required
+def routine_view(request):
+    profile = request.user.profile
+    meals = ['Breakfast', 'Lunch', 'Dinner']
+
+    # Handle form submission for profile update
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('routine')
+    else:
+        form = ProfileForm(instance=profile)
+
+    # Get today's date
+    today = timezone.now().date()
+
+    # Filter meals and workouts for today using year, month, and day
+    logged_meals = MealLog.objects.filter(user=request.user, 
+                                          date__year=today.year,
+                                          date__month=today.month,
+                                          date__day=today.day)
+    
+    logged_workouts = Workout.objects.filter(user=request.user,
+                                                date__year=today.year,
+                                                date__month=today.month,
+                                                date__day=today.day)
+
+    # Calculate total calories consumed
+    total_calories = sum(meal.calories for meal in logged_meals)
+
+    # Calculate total calories burned
+    total_calories_burned = sum(workout.calories_burned for workout in logged_workouts)
+
+    # Define goals
+    calorie_goal = profile.calorie_goal if hasattr(profile, 'calorie_goal') else 2000
+    workout_goal = 3  # Example goal of 3 workouts per day
+
+    # Calculate progress percentages
+    calorie_percent = min((total_calories / calorie_goal) * 100, 100)
+    calories_burned_percent = min((total_calories_burned / calorie_goal) * 100, 100)  
+    workout_percent = min((len(logged_workouts) / workout_goal) * 100, 100)
+
+    context = {
+        'profile_form': form,
+        'meals': meals,
+        'total_calories': total_calories,
+        'total_calories_burned': total_calories_burned,
+        'calorie_goal': calorie_goal,
+        'calorie_percent': calorie_percent,
+        'calories_burned_percent': calories_burned_percent,  # Add this to context
+        'workout_percent': workout_percent,
+        'logged_meals': logged_meals,
+        'logged_workouts': logged_workouts
+    }
+
+    return render(request, 'routine.html', context)
 
 ################################## User Profile Management #############################
 # Profile Management View
@@ -94,6 +173,23 @@ def delete_account(request):
         user.delete()
         return render(request, 'account_deleted.html')  # Render a template to confirm account deletion
     return redirect('profile')
+
+
+@login_required
+def profile_view(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=profile)
+
+    return render(request, 'profile.html', {
+        'profile_form': form,
+    })
 
 
 ########################### Group Management #######################################
@@ -136,6 +232,9 @@ def group_detail(request, group_id): # View group details and messages
 def join_group(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     group.members.add(request.user)
+
+    check_and_award_badges(request.user)
+
     return redirect('group_detail', group_id=group.id)
 
 @login_required # Ensure the user is logged in to leave a group
@@ -160,3 +259,10 @@ def conservation_view(request):
         'grid_rows': grid_rows,
         'grid_cols': grid_cols,
     })
+
+
+############################# Challenge and Badges Management ###############################
+@login_required
+def challenges_and_badges(request):
+    user_badges = UserBadge.objects.filter(user=request.user).select_related('badge')
+    return render(request, 'challenges.html', {'user_badges': user_badges})

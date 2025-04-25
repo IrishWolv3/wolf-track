@@ -4,7 +4,7 @@
     <div class="container mt-5">
         <form class="col-6 mx-auto card p-3 shadow-lg" method="post">
             {% csrf_token %}
-            <h1 style="text-align: center;"><span style="color: green;">Wolvenfest Fitness</span></h1>
+            <h1 style="text-align: center;"><span style="color: rgb(22, 93, 104);">Wolvenfest Fitness</span></h1>
             <h3 class="text-center">Login</h3>
             <hr>
             {% if messages %}
@@ -16,7 +16,7 @@
             {% endif %}
             {{ form.as_p }}
             <p>Don't have an account? <a href="/register/">Register</a></p>
-            <button type="submit" class="btn btn-primary">Login</button>
+            <button type="submit" class="btn btn-outline-primary m-2">Login</button>
         </form>
     </div>
 {% endblock %}

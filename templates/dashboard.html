@@ -1,30 +1,41 @@
 {% extends "base.html" %}
+
 {% block content %}
+<div class="container mt-5">
+    <!-- Center content using Bootstrap grid -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="text-center mb-4">Welcome, {{ user.username }}</h1>
 
-<h1>Welcome, {{ user.username }}</h1>
+            <h2>Your Workouts</h2>
+            <ul>
+                {% for workout in workouts %}
+                    <li>
+                        {{ workout.date }} - {{ workout.workout_type }} ({{ workout.duration }} min, {{ workout.calories_burned }} cal)
+                        <a href="{% url 'delete_workout' workout.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                    </li>
+                {% empty %}
+                    <li>No workouts logged yet.</li>
+                {% endfor %}
+            </ul>
 
-<h2>Your Workouts</h2>
-<ul>
-    {% for workout in workouts %}
-        <li>{{ workout.date }} - {{ workout.workout_type }} ({{ workout.duration }} min, {{ workout.calories_burned }} cal)</li>
-    {% empty %}
-        <li>No workouts logged yet.</li>
-    {% endfor %}
-</ul>
+            <h2>Your Meal Logs</h2>
+            <ul>
+                {% for meal in meals %}
+                    <li>
+                        {{ meal.date }} - {{ meal.meal_type }} ({{ meal.calories }} cal)
+                        <a href="{% url 'delete_meal' meal.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                    </li>
+                {% empty %}
+                    <li>No meals logged yet.</li>
+                {% endfor %}
+            </ul>
 
-<h2>Your Meal Logs</h2>
-<ul>
-    {% for meal in meals %}
-        <li>{{ meal.date }} - {{ meal.meal_type }} ({{ meal.calories }} cal)</li>
-    {% empty %}
-        <li>No meals logged yet.</li>
-    {% endfor %}
-</ul>
-
-<div>
-    <a href="{% url 'log_workout' %}">Log a Workout</a> |
-    <a href="{% url 'log_meal' %}">Log a Meal</a> |
-    <a href="{% url 'logout' %}">Logout</a>
+            <div class="text-center mt-3">
+                <a href="{% url 'log_workout' %}" class="btn btn-outline-primary m-2">Log a Workout</a>
+                <a href="{% url 'log_meal' %}" class="btn btn-outline-primary m-2">Log a Meal</a>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}

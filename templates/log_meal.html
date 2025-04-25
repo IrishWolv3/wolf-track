@@ -2,11 +2,26 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="card shadow p-4 mx-auto" style="max-width: 600px;">
+    <div class="card shadow p-4 mx-auto" style="max-width: 700px;">
         <h2 class="text-center mb-4">🍽️ Log Your Meal</h2>
         <form method="POST">
             {% csrf_token %}
-            {{ form.as_p }}
+            <div class="form-group mb-3">
+                <label for="meal_name">Meal Name</label>
+                {{ form.meal_name }}
+            </div>
+            <div class="form-group mb-3">
+                <label for="meal_type">Meal Type</label>
+                {{ form.meal_type }}
+            </div>
+            <div class="form-group mb-3">
+                <label for="quantity">Quantity (grams/cups/etc.)</label>
+                {{ form.quantity }}
+            </div>
+            <div class="form-group mb-3">
+                <label for="calories">Calories</label>
+                {{ form.calories }}
+            </div>
             <div class="text-center">
                 <button type="submit" class="btn btn-primary mt-3">Log Meal</button>
             </div>

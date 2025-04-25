@@ -1,1 +1,79 @@
+<!-- profile.html -->
 {% extends "base.html" %}
+{% block content %}
+    <h2 class="text-center mt-5">Profile</h2>
+    <p class="text-center mt-3">Hello, {{ user.username }}! You may also update your personal info or delete your account.</p>
+    <hr>
+
+    <div class="d-flex justify-content-center mb-4">
+        <div class="card p-4 shadow-sm" style="max-width: 600px; width: 100%;">
+            <h4 class="mb-4 text-center">Update Your Profile</h4>
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    {{ profile_form.weight.label_tag }}
+                    {{ profile_form.weight }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_height_feet">Height:</label>
+                    <div class="d-flex gap-2">
+                        <div>
+                            {{ profile_form.height_feet }} <span>ft</span>
+                        </div>
+                        <div>
+                            {{ profile_form.height_inches }} <span>in</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ profile_form.age.label_tag }}
+                    {{ profile_form.age }}
+                </div>
+
+                <div class="mb-3">
+                    {{ profile_form.desired_weight.label_tag }}
+                    {{ profile_form.desired_weight }}
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h3 class="text-center">Need to Log?</h3>
+    <div class="row text-center mt-4 mb-5">
+        <div class="col-md-6">
+            <a href="{% url 'log_meal' %}" class="btn btn-outline-dark w-100 p-4">🍽️ Log Meal</a>
+        </div>
+        <div class="col-md-6">
+            <a href="{% url 'log_workout' %}" class="btn btn-outline-success w-100 p-4">🏋️ Log Workout</a>
+        </div>
+    </div>
+    <hr>
+
+    <h3 class="text-center">Your Groups</h3>
+    {% if user.custom_groups.all %}
+        {% for group in user.custom_groups.all %}
+            <p class="text-center">
+                <a href="{% url 'group_detail' group.id %}" class="btn btn-outline-secondary">{{ group.name }}</a>
+            </p>
+        {% endfor %}
+    {% else %}
+        <p class="text-center">You are not part of any groups.</p>
+    {% endif %}
+    <hr>
+
+    <form method="POST" action="{% url 'delete_account' %}">
+        {% csrf_token %}
+        <div class="text-center">
+            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete your account? This cannot be undone.')">
+                ❌ Delete My Account
+            </button>
+        </div>
+    </form>
+{% endblock %}

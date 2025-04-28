@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto p-4">
+  <h2 class="text-3xl font-bold mb-6 text-center">Wolf Pack Challenges:</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+
+    <!-- 5-Day Streak -->
+    <div class="bg-white shadow-lg rounded-2xl p-6 text-center">
+      <div class="text-4xl mb-2">🔥</div>
+      <h3 class="text-xl font-semibold mb-2">5-Day Streak</h3>
+      <p class="text-gray-600">Complete 5 days of workouts in a row to earn this fiery badge!</p>
+    </div>
+
+    <!-- Trail Hunter -->
+    <div class="bg-white shadow-lg rounded-2xl p-6 text-center">
+      <div class="text-4xl mb-2">🌲</div>
+      <h3 class="text-xl font-semibold mb-2">Trail Hunter</h3>
+      <p class="text-gray-600">Complete a total of 10 workouts to become a Trail Hunter!</p>
+    </div>
+
+    <!-- Pack Leader -->
+    <div class="bg-white shadow-lg rounded-2xl p-6 text-center">
+      <div class="text-4xl mb-2">🐾</div>
+      <h3 class="text-xl font-semibold mb-2">Pack Leader</h3>
+      <p class="text-gray-600">Join a Wolf Pack group to earn this loyalty badge!</p>
+    </div>
+
+    <!-- Endurance Run Challenge (No badge yet) -->
+    <div class="bg-white shadow-lg rounded-2xl p-6 text-center">
+      <div class="text-4xl mb-2">🏃</div>
+      <h3 class="text-xl font-semibold mb-2">Endurance Run Challenge</h3>
+      <p class="text-gray-600">Push your stamina and speed to the next level. Coming soon: badge rewards!</p>
+    </div>
+
+    <!-- Winter Survival Strength Challenge (No badge yet) -->
+    <div class="bg-white shadow-lg rounded-2xl p-6 text-center">
+      <div class="text-4xl mb-2">❄️</div>
+      <h3 class="text-xl font-semibold mb-2">Winter Survival Strength</h3>
+      <p class="text-gray-600">Survive the winter workouts! Focus on resilience and strength. Coming soon: badge rewards!</p>
+    </div>
+
+    <!-- Custom Challenge Builder (No badge yet) -->
+    <div class="bg-white shadow-lg rounded-2xl p-6 text-center">
+      <div class="text-4xl mb-2">💪</div>
+      <h3 class="text-xl font-semibold mb-2">Custom Challenge Builder</h3>
+      <p class="text-gray-600">Design your own unique fitness challenge and conquer it your way! Coming soon: badge rewards!</p>
+    </div>
+
+  </div>
+
+  <h3 class="text-2xl font-bold mt-10 mb-4 text-center">🏅 Your Hard Earned Badges:</h3>
+
+  {% if user_badges %}
+    <div class="flex flex-wrap justify-center gap-4">
+      {% for badge in user_badges %}
+        <div class="bg-white shadow-md rounded-xl p-4 w-48 text-center">
+          <div class="text-3xl">{{ badge.badge.emoji }}</div>
+          <div class="font-semibold mt-2">{{ badge.badge.name }}</div>
+          <div class="text-gray-500 text-sm">{{ badge.badge.description }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center text-gray-600 mt-4">No badges earned yet. Keep Hunting!</p>
+  {% endif %}
+</div>
+{% endblock %}

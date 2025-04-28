@@ -49,10 +49,10 @@ class ProfileForm(forms.ModelForm):
 
 # Workout Log Form
 class WorkoutLogForm(forms.ModelForm):
-    class Meta:
+    class Meta: # Meta class to define the model and fields for the form
         model = Workout
         fields = ['workout_type', 'duration', 'sets', 'reps', 'calories_burned']
-        widgets = {
+        widgets = { # Widgets to customize the appearance of the form fields
             'workout_type': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Push Ups'}),
             'duration': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Minutes'}),
             'sets': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 3'}),
@@ -62,10 +62,10 @@ class WorkoutLogForm(forms.ModelForm):
 
 # Meal Log Form
 class MealLogForm(forms.ModelForm):
-    class Meta:
+    class Meta: # Meta class to define the model and fields for the form
         model = MealLog
         fields = ['meal_name', 'meal_type', 'quantity', 'calories']
-        widgets = {
+        widgets = { # Widgets to customize the appearance of the form fields
             'meal_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Chicken Salad'}),
             'meal_type': forms.Select(attrs={'class': 'form-control'}),
             'quantity': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 200g'}),

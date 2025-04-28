@@ -4,11 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import Group, Message, Profile, Workout, MealLog, Badge, UserBadge
 from .forms import UserProfileForm, WorkoutLogForm, MealLogForm, CustomUserCreationForm, CustomAuthenticationForm, UserProfileForm,  GroupForm, ProfileForm
-from .utils import check_and_award_badges
+from .utils import check_and_award_badges, ensure_badges_exist
 
 ################################## Front end applications #############################
 def index(request):
-    return render(request, "index.html") # Render the index.html template
+    return render(request, "pages/index.html") # Render the index.html template
 
 @login_required
 def dashboard(request):
@@ -23,30 +23,30 @@ def dashboard(request):
 def register(request):
     if request.method == 'POST': # If the form has been submitted
         form = CustomUserCreationForm(request.POST) # Create a form instance with the submitted data
-        if form.is_valid(): # If form is valid
-            user = form.save() # Save the user to the database
-            login(request, user) # Log the user in
-            return redirect('dashboard') # Redirect to dashboard if registration is successful
+        if form.is_valid(): # If form is valid, log in and save the user
+            user = form.save() 
+            login(request, user) 
+            return redirect('dashboard') 
     else:
         form = CustomUserCreationForm() # Create an instance of the form
-    return render(request, 'register.html', {'form': form}) # Render the register.html template
+    return render(request, 'account/register.html', {'form': form}) # Render the register.html template
 
 # User Login View
 def login_view(request):
     if request.method == 'POST': # If the form has been submitted
         form = CustomAuthenticationForm(request, data=request.POST) # Create a form instance with the submitted data
-        if form.is_valid(): # If form is valid
-            user = form.get_user() # Get the user
-            login(request, user) # Log the user in
-            return redirect('dashboard') # Redirect to dashboard if login is successful
+        if form.is_valid(): # If form is valid, get the user and log them in
+            user = form.get_user() 
+            login(request, user) 
+            return redirect('dashboard') 
     else: 
         form = CustomAuthenticationForm() # Create an instance of the form
-    return render(request, 'login.html', {'form': form}) # Render the login.html template
+    return render(request, 'account/login.html', {'form': form}) 
 
 # User Logout View
 def logout_view(request):
     logout(request)
-    return redirect('logout.html')
+    return redirect('account/logout.html')
 
 ################################## Fitness Tracking #############################
 # Log Workouts
@@ -54,7 +54,7 @@ def logout_view(request):
 def log_workout(request):
     if request.method == "POST":
         form = WorkoutLogForm(request.POST)
-        if form.is_valid():
+        if form.is_valid():     # If the form is valid, save the workout
             workout = form.save(commit=False)
             workout.user = request.user
             workout.save()
@@ -62,31 +62,36 @@ def log_workout(request):
     else:
         form = WorkoutLogForm()
 
-    check_and_award_badges(request.user)
+    check_and_award_badges(request.user) # Check and award badges after logging a workout
 
-    return render(request, 'log_workout.html', {'form': form})
+    return render(request, 'logs/log_workout.html', {'form': form})
 
 # Log Meals
 @login_required
 def log_meal(request):
-    if request.method == "POST":
+    if request.method == "POST": 
         form = MealLogForm(request.POST)
-        if form.is_valid():
+        if form.is_valid():     # If the form is valid, save the meal
             meal = form.save(commit=False)
             meal.user = request.user
             meal.save()
             return redirect('dashboard')
     else:
         form = MealLogForm()
-    return render(request, 'log_meal.html', {'form': form})
 
+    ensure_badges_exist() # Ensure badges exist in the database
+    check_and_award_badges(request.user) # Check and award badges after joining a group
+
+    return render(request, 'logs/log_meal.html', {'form': form})
+
+# Delete user workouts
 @login_required
 def delete_workout(request, workout_id):
     workout = Workout.objects.get(id=workout_id, user=request.user)
     workout.delete()
     return redirect('dashboard')
 
-# Delete Meal
+# Delete logged meals
 @login_required
 def delete_meal(request, meal_id):
     meal = MealLog.objects.get(id=meal_id, user=request.user)
@@ -95,7 +100,7 @@ def delete_meal(request, meal_id):
 
 #################################### Routine Management #############################
 @login_required
-def routine_view(request):
+def routine_view(request): # Routine view for logged meals and workouts
     profile = request.user.profile
     meals = ['Breakfast', 'Lunch', 'Dinner']
 
@@ -128,7 +133,7 @@ def routine_view(request):
     # Calculate total calories burned
     total_calories_burned = sum(workout.calories_burned for workout in logged_workouts)
 
-    # Define goals
+    # Define user goals
     calorie_goal = profile.calorie_goal if hasattr(profile, 'calorie_goal') else 2000
     workout_goal = 3  # Example goal of 3 workouts per day
 
@@ -137,7 +142,7 @@ def routine_view(request):
     calories_burned_percent = min((total_calories_burned / calorie_goal) * 100, 100)  
     workout_percent = min((len(logged_workouts) / workout_goal) * 100, 100)
 
-    context = {
+    context = { # Pass the context, including the form and logged meals/workouts
         'profile_form': form,
         'meals': meals,
         'total_calories': total_calories,
@@ -150,20 +155,20 @@ def routine_view(request):
         'logged_workouts': logged_workouts
     }
 
-    return render(request, 'routine.html', context)
+    return render(request, 'logs/routine.html', context)
 
 ################################## User Profile Management #############################
 # Profile Management View
 @login_required
 def profile(request):
-    if request.method == 'POST': # If the form has been submitted
-        form = UserProfileForm(request.POST, instance=request.user) # Create a form instance with the submitted data
-        if form.is_valid(): # If form is valid
-            form.save() # Save the form
+    if request.method == 'POST': # If the form has been submitted, create a form instance with the submitted data
+        form = UserProfileForm(request.POST, instance=request.user) 
+        if form.is_valid(): 
+            form.save() 
             return redirect('dashboard') # Redirect to dashboard if profile is updated
     else:
-        form = UserProfileForm(instance=request.user) # Create an instance of the form
-    return render(request, 'profile.html') # Render the profile.html template
+        form = UserProfileForm(instance=request.user) 
+    return render(request, 'account/profile.html')
 
 @login_required # Ensure the user is logged in to delete their account
 def delete_account(request):
@@ -171,15 +176,15 @@ def delete_account(request):
         user = request.user
         logout(request)  # Log them out before deleting
         user.delete()
-        return render(request, 'account_deleted.html')  # Render a template to confirm account deletion
+        return render(request, 'account/account_deleted.html') 
     return redirect('profile')
 
-
+# Profile View for logged-in users
 @login_required
 def profile_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
 
-    if request.method == 'POST':
+    if request.method == 'POST': # If the form has been submitted, create a form instance with the submitted data
         form = ProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
@@ -187,20 +192,20 @@ def profile_view(request):
     else:
         form = ProfileForm(instance=profile)
 
-    return render(request, 'profile.html', {
+    return render(request, 'account/profile.html', {
         'profile_form': form,
     })
 
 
 ########################### Group Management #######################################
 @login_required
-def group_list(request): # List all groups
-    groups = Group.objects.all() # Fetch all groups
-    return render(request, 'groups/group_list.html', {'groups': groups}) # Render the group list template
+def group_list(request): # List all groups and fetch
+    groups = Group.objects.all() 
+    return render(request, 'groups/group_list.html', {'groups': groups}) 
 
 # Create Group View
 @login_required
-def group_create(request): # Create a new group
+def group_create(request): 
     if request.method == 'POST':
         form = GroupForm(request.POST)
         if form.is_valid():
@@ -209,7 +214,7 @@ def group_create(request): # Create a new group
             return redirect('group_list')
     else:
         form = GroupForm()
-    return render(request, 'groups/group_form.html', {'form': form}) # Render the group creation form template
+    return render(request, 'groups/group_form.html', {'form': form}) 
 
 # Group Detail View
 @login_required
@@ -233,7 +238,8 @@ def join_group(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     group.members.add(request.user)
 
-    check_and_award_badges(request.user)
+    ensure_badges_exist() # Ensure badges exist in the database
+    check_and_award_badges(request.user) # Check and award badges after joining a group
 
     return redirect('group_detail', group_id=group.id)
 
@@ -244,18 +250,18 @@ def leave_group(request, group_id):
     return redirect('group_list')
 
 def group_main(request): # Main view for group management
-    return render(request, 'group_main.html')
+    return render(request, 'groups/group_main.html')
 
 ############################### User Awareness views #######################################
-# Pricing View
+# Pricing view page
 def pricing_view(request):
-    return render(request, 'pricing.html')
+    return render(request, 'pages/pricing.html')
 
 # Conservation View
-def conservation_view(request):
-    grid_rows = [1, 2, 3]
+def conservation_view(request): # Define grid rows and columns for the conservation page
+    grid_rows = [1, 2, 3] 
     grid_cols = [1, 2, 3]
-    return render(request, 'conservation.html', {
+    return render(request, 'pages/conservation.html', {
         'grid_rows': grid_rows,
         'grid_cols': grid_cols,
     })
@@ -263,6 +269,6 @@ def conservation_view(request):
 
 ############################# Challenge and Badges Management ###############################
 @login_required
-def challenges_and_badges(request):
-    user_badges = UserBadge.objects.filter(user=request.user).select_related('badge')
-    return render(request, 'challenges.html', {'user_badges': user_badges})
+def challenges_and_badges(request): 
+    user_badges = UserBadge.objects.filter(user=request.user) # Fetch badges for the logged-in user
+    return render(request, 'pages/challenges.html', {'user_badges': user_badges})

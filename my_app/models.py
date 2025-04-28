@@ -17,30 +17,30 @@ class User(AbstractUser):
 
 # User profile model
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    age = models.IntegerField(null=True, blank=True)
-    height = models.FloatField(help_text="Height in cm", null=True, blank=True)
-    weight = models.FloatField(help_text="Weight in kg", null=True, blank=True)
-    fitness_goal = models.TextField(blank=True, help_text="User's fitness objectives")
+    user = models.OneToOneField(User, on_delete=models.CASCADE) # One-to-one
+    age = models.IntegerField(null=True, blank=True) # Age attribute
+    height = models.FloatField(help_text="Height in cm", null=True, blank=True) # Height attribute
+    weight = models.FloatField(help_text="Weight in kg", null=True, blank=True) # Weight attribute
+    fitness_goal = models.TextField(blank=True, help_text="User's fitness objectives") # Fitness goal attribute
 
-    def __str__(self):
+    def __str__(self): # String representation of the user profile
         return self.user.username
 
-User = get_user_model()
-def default_user():
-    first_user = User.objects.first()
+User = get_user_model() # Get the custom user model
+def default_user(): # Default user function to return the first user in the database
+    first_user = User.objects.first() # Get the first user in the database
     return first_user.id if first_user else None  # Ensure it returns None if no user exists
 
 # Profile model for personalized fitness information
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    weight = models.FloatField(null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE) # One-to-one
+    weight = models.FloatField(null=True, blank=True) 
     height_feet = models.IntegerField(null=True, blank=True)
     height_inches = models.IntegerField(null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
     desired_weight = models.FloatField(null=True, blank=True)
 
-    def __str__(self):
+    def __str__(self): # String representation of the profile
         return f"{self.user.username}'s Profile"
 
 
@@ -54,7 +54,7 @@ class Workout(models.Model):
     reps = models.PositiveIntegerField(null=True, blank=True, help_text="Reps per set (if applicable)")
     calories_burned = models.PositiveIntegerField(help_text="Estimated calories burned")
 
-    def __str__(self):
+    def __str__(self): # String representation of the workout log
         return f"{self.user.username} - {self.workout_type} on {self.date}"
 
 # Meal logging model
@@ -64,7 +64,7 @@ class MealLog(models.Model):
     meal_name = models.CharField(max_length=100, help_text="Name of the meal (e.g., Grilled Chicken Salad)", default="Default Meal")
     meal_type = models.CharField(
         max_length=50,
-        choices=[
+        choices=[ # Choices for meal type
             ('Breakfast', 'Breakfast'),
             ('Lunch', 'Lunch'),
             ('Dinner', 'Dinner'),
@@ -75,7 +75,7 @@ class MealLog(models.Model):
     quantity = models.CharField(max_length=100, help_text="e.g., 1 bowl, 200g", default="1 serving")
     calories = models.PositiveIntegerField(help_text="Total calorie intake")
 
-    def __str__(self):
+    def __str__(self): # String representation of the meal log
         return f"{self.user.username} - {self.meal_type} on {self.date}"
     
 ############################## Wolf Pack Management #################################
@@ -103,6 +103,7 @@ class Message(models.Model): # Group chat message model
 from django.db import models
 from django.contrib.auth.models import User
 
+# Challenge model that users can participate in
 class Challenge(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -111,6 +112,7 @@ class Challenge(models.Model):
     def __str__(self):
         return self.name
 
+# This model represents a badge that can be awarded to users
 class Badge(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -119,6 +121,7 @@ class Badge(models.Model):
     def __str__(self):
         return self.name
 
+# This model tracks which badges a user has earned
 class UserBadge(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
